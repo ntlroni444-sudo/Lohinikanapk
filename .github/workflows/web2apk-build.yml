@@ -1,0 +1,44 @@
+# language: YAML, file: .github/workflows/web2apk-build.yml
+name: Build Web2APK
+
+on:
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'web_source/**'
+  workflow_dispatch:
+
+jobs:
+  build-web2apk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js (Kalau webnya butuh build step)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # Opsional: Kalau file web lo butuh di-build dulu (misal React/Vue)
+      # - name: Install & Build Web
+      #   working-directory: web_source
+      #   run: |
+      #     npm install
+      #     npm run build
+      #     # Pindahin hasil build ke folder yang bener (misal dist/)
+          
+      - name: Convert Web to APK
+        uses: darkshredder/web-to-app-action@main
+        with:
+          build-folder-path: "web_source" # Ganti ini kalau folder lo beda
+          app-name: "Lohinikanapk"
+          output-folder-path: "web_apk"
+          # package-name: "com.lohinikanapk.app" # Opsional
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: web2apk-release
+          path: web_apk/*.apk
+          retention-days: 7
